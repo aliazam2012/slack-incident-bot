@@ -15,7 +15,7 @@ import datetime as dt
 from dataclasses import dataclass
 
 from freight_agents.incident_bot.domain import Severity
-from freight_agents.knowledge.index import Bm25Index, topic_corpus
+from freight_agents.knowledge.index import Bm25Index, package_corpus
 
 SEVERITY_URL = "https://docs.pagerduty.com/ops-guides/incident-response-guide/severity-levels"
 EXTERNAL_URL = "https://docs.pagerduty.com/ops-guides/incident-response-guide/external-comms"
@@ -89,4 +89,4 @@ def cadence(c: Cadence, elapsed: dt.timedelta) -> dt.timedelta:
 
 def runbook_index() -> Bm25Index:
     """Runbooks and incident practice, searchable with citations."""
-    return Bm25Index(topic_corpus("incidents"))
+    return Bm25Index(package_corpus("freight_agents.incident_bot"))
