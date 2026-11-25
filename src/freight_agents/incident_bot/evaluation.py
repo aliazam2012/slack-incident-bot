@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from freight_agents.evals.recording import RecordResult, record_cases, replay_model
 from freight_agents.incident_bot.chat import FakeChat
 from freight_agents.incident_bot.desk import (
     PERSON,
@@ -33,7 +34,7 @@ from freight_agents.incident_bot.desk import (
     Stores,
 )
 from freight_agents.incident_bot.domain import Incident
-from freight_agents.incident_bot.drafts import Kind, reference_model
+from freight_agents.incident_bot.drafts import Kind, ModelFor, reference_model
 from freight_agents.llm import Model, ModelTurn, ScriptedModel, ToolCall, Usage
 
 T0 = dt.datetime(2026, 11, 24, 9, 0, tzinfo=dt.UTC)
@@ -287,7 +288,11 @@ def _minute(at: dt.datetime) -> int:
     return round((at - T0).total_seconds() / 60)
 
 
-def play(s: Scenario, root: Path) -> dict[str, Any]:
+def play(s: Scenario, root: Path, live: ModelFor | None = None) -> dict[str, Any]:
+    """One scenario on a fresh desk; live drafts if given, else reference drafts.
+
+    A red-team scenario's fooled drafts stay scripted: they test the guards, not a model.
+    """
     clock, chat = Clock(), FakeChat()
     stores = Stores.at(root, clock)
     fooled = dict(s.fooled)
@@ -295,6 +300,8 @@ def play(s: Scenario, root: Path) -> dict[str, Any]:
     def models(kind: Kind, incident: Incident) -> Model:
         if kind in fooled:
             return fooled[kind](incident)
+        if live is not None and s.attack is None:
+            return live(kind, incident)
         return reference_model(kind, incident)
 
     desk = IncidentDesk(stores, chat, models=models, clock=clock)
@@ -406,11 +413,12 @@ FLOORS: dict[str, tuple[str, float]] = {
 }
 
 
-def run() -> Result:
+def run(drafts_for: Callable[[Scenario], ModelFor | None] | None = None) -> Result:
     rows = []
     with tempfile.TemporaryDirectory() as tmp:
         for i, s in enumerate(scenarios()):
-            rows.append(play(s, Path(tmp) / f"case-{i}"))
+            live = drafts_for(s) if drafts_for else None
+            rows.append(play(s, Path(tmp) / f"case-{i}", live))
 
     def share(key: str) -> float:
         return sum(bool(r[key]) for r in rows) / len(rows)
@@ -434,7 +442,50 @@ def _resisted(value: bool | None) -> str:
     return "" if value is None else ("yes" if value else "no")
 
 
-def write_report(result: Result, directory: Path, day: str) -> Path:
+def model_read_scenarios() -> list[Scenario]:
+    """Every scenario but the red team, whose drafts stay scripted."""
+    return [s for s in scenarios() if s.attack is None]
+
+
+def run_recorded(cassettes: Path, model_name: str) -> Result:
+    """The same scenarios and graders, drafted by a real model's recorded turns."""
+    read = {s.id for s in model_read_scenarios()}
+
+    def drafts_for(s: Scenario) -> ModelFor | None:
+        if s.id not in read:
+            return None
+        return lambda kind, incident: replay_model(s.id, cassettes, model_name)
+
+    return run(drafts_for)
+
+
+def record(
+    cassettes: Path,
+    live: Callable[[str], Model],
+    cap: float,
+    limit: int | None = None,
+    out: Callable[[str], object] = print,
+) -> RecordResult:
+    """Record a live model drafting in every scenario but the red team, under the cap."""
+    by_id = {s.id: s for s in model_read_scenarios()}
+
+    def run_one(case_id: str, model: Model) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            play(by_id[case_id], Path(tmp), live=lambda kind, incident: model)
+
+    ids = list(by_id)
+    return record_cases(
+        ids[:limit] if limit else ids, run_one, live, cassettes, cap, total=len(ids), out=out
+    )
+
+
+def write_report(
+    result: Result,
+    directory: Path,
+    day: str,
+    mode: str = "reference",
+    model: str | None = None,
+) -> Path:
     failures = result.failures(FLOORS)
     gate = "passed" if not failures else "failed: " + "; ".join(failures)
     m = result.metrics
@@ -454,8 +505,13 @@ def write_report(result: Result, directory: Path, day: str) -> Path:
         f"Cases: {int(m['cases'])} incidents played minute by minute against an in-memory "
         f"Slack, six of them red-team cases. Gate: {gate}.",
         "",
-        "Expected reminder minutes are written by hand from the policy. Drafts run in "
-        "reference mode; red-team cases script a model that obeys the injected text.",
+        "Expected reminder minutes are written by hand from the policy. "
+        + (
+            "Drafts run in reference mode; "
+            if mode == "reference"
+            else f"Drafts replay the recorded turns of {model}; "
+        )
+        + "red-team cases script a model that obeys the injected text.",
         "",
         "## Metrics",
         "",
@@ -474,8 +530,8 @@ def write_report(result: Result, directory: Path, day: str) -> Path:
         ],
     ]
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{day}-reference.md"
+    path = directory / f"{day}-{mode}.md"
     path.write_text("\n".join(lines) + "\n")
-    latest = {"date": day, "mode": "reference", "metrics": m}
+    latest = {"date": day, "mode": mode, "model": model, "metrics": m}
     (directory / "latest.json").write_text(json.dumps(latest, indent=2, sort_keys=True) + "\n")
     return path
