@@ -1,0 +1,35 @@
+[project]
+name = "freight-agents-incident-bot"
+version = "0.1.0"
+description = "Incident management inside a Slack channel: cadence reminders, runbooks, approved updates, postmortems"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7",
+    "slack-bolt>=1.21",
+    "slack-sdk>=3.33",
+    "freight-agents-llm",
+    "freight-agents-agentcore",
+    "freight-agents-statecore",
+    "freight-agents-knowledge",
+    "freight-agents-evals",
+    "freight-agents-mcp",
+]
+
+[project.scripts]
+freight-incidents = "freight_agents.incident_bot.cli:main"
+
+[tool.uv.sources]
+freight-agents-llm = { workspace = true }
+freight-agents-agentcore = { workspace = true }
+freight-agents-statecore = { workspace = true }
+freight-agents-knowledge = { workspace = true }
+freight-agents-evals = { workspace = true }
+freight-agents-mcp = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/freight_agents"]
