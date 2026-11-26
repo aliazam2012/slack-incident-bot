@@ -3,10 +3,11 @@ from typing import Any
 from urllib.parse import urlencode
 
 import pytest
-from freight_agents.incident_bot.chat import FakeChat, SlackChat
-from freight_agents.incident_bot.slack_app import SeenEvents, build_slack_app
 from slack_bolt import BoltRequest
 from slack_sdk import WebClient
+
+from freight_agents.incident_bot.chat import FakeChat, SlackChat
+from freight_agents.incident_bot.slack_app import SeenEvents, build_slack_app
 
 from .conftest import SlackStub
 

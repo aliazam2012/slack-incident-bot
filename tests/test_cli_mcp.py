@@ -4,9 +4,10 @@ from typing import Any
 
 import anyio
 import pytest
+from mcp import Client
+
 from freight_agents.incident_bot.cli import main
 from freight_agents.incident_bot.mcp_server import build_incident_server
-from mcp import Client
 
 from .conftest import World
 

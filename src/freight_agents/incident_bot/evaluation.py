@@ -25,6 +25,8 @@ from pathlib import Path
 from typing import Any
 
 from freight_agents.evals.recording import RecordResult, record_cases, replay_model
+from freight_agents.llm import Model, ModelTurn, ScriptedModel, ToolCall, Usage
+
 from freight_agents.incident_bot.chat import FakeChat
 from freight_agents.incident_bot.desk import (
     PERSON,
@@ -35,7 +37,6 @@ from freight_agents.incident_bot.desk import (
 )
 from freight_agents.incident_bot.domain import Incident
 from freight_agents.incident_bot.drafts import Kind, ModelFor, reference_model
-from freight_agents.llm import Model, ModelTurn, ScriptedModel, ToolCall, Usage
 
 T0 = dt.datetime(2026, 11, 24, 9, 0, tzinfo=dt.UTC)
 Event = tuple[int, str, str]  # minute, kind, argument

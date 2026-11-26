@@ -1,6 +1,13 @@
-# incident-bot
+# slack-incident-bot
 
-A Slack bot that runs an incident inside its own channel: declare it, set severity and roles, keep the timeline, remind on the update cadence the severity sets, find the runbook with its citation, summarize the thread, and draft the customer update (approved before it leaves the channel) and a blameless postmortem from the repository's template.
+[![CI](https://github.com/aliazam2012/slack-incident-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/aliazam2012/slack-incident-bot/actions/workflows/ci.yml)
+![Evaluation gate](https://img.shields.io/badge/evaluation%20gate-20%20incidents-brightgreen)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
+![License MIT](https://img.shields.io/badge/license-MIT-green)
+
+**A Slack bot that runs an incident inside its own channel: severity and roles, a timeline, update reminders on the cadence the severity sets, cited runbooks, customer updates a person approves, and a blameless postmortem.**
+
+**Skills shown:** an agent in a team's workflow (Slack Bolt, Socket Mode) · a state machine with cadence timers · retrieval with citations · an approval gate for anything leaving the channel · prompt-injection defense against channel messages · a contract-tested fake Slack · safe under concurrent events · evaluation on 20 incidents played minute by minute
 
 ## Table of Contents
 
@@ -10,6 +17,7 @@ A Slack bot that runs an incident inside its own channel: declare it, set severi
 - [Run It](#run-it)
 - [Connect a Real Workspace](#connect-a-real-workspace)
 - [Limits](#limits)
+- [Where It Fits](#where-it-fits)
 
 ---
 
@@ -40,7 +48,7 @@ The expected minutes are written by hand from the policy, so the grader checks b
 | Chat | `chat.py`, `slack_app.py` | A chat port with an in-memory fake and a slack_sdk adapter, contract-tested against a stub of the Slack Web API; a Bolt app that handles a redelivered event once |
 | Desk | `desk.py`, `drafts.py` | Commands, runbook search with citations, model drafts through record-only tools, approvals for anything outside the channel, the postmortem |
 
-[ADR-0013](../../docs/adr/ADR-0013-chat-port-and-fake-slack.md) explains the chat port and the fake.
+[ADR-0013](docs/adr/ADR-0013-chat-port-and-fake-slack.md) explains the chat port and the fake.
 
 ## Commands
 
@@ -83,3 +91,7 @@ SLACK_BOT_TOKEN=xoxb-... SLACK_APP_TOKEN=xapp-... INCIDENT_STATUS_CHANNEL=C01234
 - Anyone in an incident channel can run its commands; a real deployment would map commands to roles.
 - Approvals happen through `approve` on the desk (the demo and tests call it); a Slack button for them is not built.
 - Drafts are read in reference mode until a live run is recorded ([issue #10](https://github.com/aliazam2012/freight-agents/issues/10)).
+
+## Where It Fits
+
+Part of a family of freight agents on one [agent runtime](https://github.com/aliazam2012/agent-runtime), which holds the shared model layer, hooks, state engine and evaluation tools.

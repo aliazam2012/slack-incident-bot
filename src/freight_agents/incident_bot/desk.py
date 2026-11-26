@@ -34,6 +34,12 @@ from freight_agents.agentcore.guards import (
 from freight_agents.agentcore.hooks import ALLOW, Decision, Deny, HookContext, ToolOutcome, run_tool
 from freight_agents.agentcore.taint import TaintSet
 from freight_agents.agentcore.tools import Risk, Tool, ToolRegistry, tool
+from freight_agents.llm import ToolCall
+from freight_agents.statecore.engine import CaseEngine, Timer
+from freight_agents.statecore.machine import CaseView, IllegalTransition
+from freight_agents.statecore.store import SqliteEventStore
+from pydantic import BaseModel
+
 from freight_agents.incident_bot.cadence import reschedule
 from freight_agents.incident_bot.chat import ChatPort
 from freight_agents.incident_bot.domain import Incident, Role, Severity, Status, TimelineEntry
@@ -47,11 +53,6 @@ from freight_agents.incident_bot.drafts import (
 from freight_agents.incident_bot.machine import INCIDENT_MACHINE, OPEN
 from freight_agents.incident_bot.policy import POLICY, runbook_index
 from freight_agents.incident_bot.slack_app import SeenEvents
-from freight_agents.llm import ToolCall
-from freight_agents.statecore.engine import CaseEngine, Timer
-from freight_agents.statecore.machine import CaseView, IllegalTransition
-from freight_agents.statecore.store import SqliteEventStore
-from pydantic import BaseModel
 
 STATUS_CHANNEL = "C-customer-status"  # the made-up customer status channel
 TEMPLATE_HEADINGS = [

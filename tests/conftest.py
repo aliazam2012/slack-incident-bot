@@ -12,6 +12,7 @@ from typing import Any
 import pytest
 import uvicorn
 from fastapi import FastAPI, Request
+
 from freight_agents.incident_bot.chat import FakeChat
 from freight_agents.incident_bot.desk import IncidentDesk, Stores
 

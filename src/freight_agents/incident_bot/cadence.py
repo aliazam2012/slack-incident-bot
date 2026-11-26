@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import datetime as dt
 
+from freight_agents.statecore.engine import CaseEngine
+
 from freight_agents.incident_bot.domain import Incident
 from freight_agents.incident_bot.policy import POLICY, cadence
-from freight_agents.statecore.engine import CaseEngine
 
 
 def reschedule(

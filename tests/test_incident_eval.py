@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 from freight_agents.incident_bot import desk as desk_module
 from freight_agents.incident_bot.evaluation import FLOORS, run, scenarios, write_report
 

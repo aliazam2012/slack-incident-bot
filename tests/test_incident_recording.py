@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pytest
 from freight_agents.evals.recording import StaleCassette
+from freight_agents.llm import Message, Model, ModelTurn, ScriptedModel, ToolSpec, Usage
+
 from freight_agents.incident_bot.domain import Incident
 from freight_agents.incident_bot.drafts import Kind, reference_model
 from freight_agents.incident_bot.evaluation import (
@@ -13,7 +15,6 @@ from freight_agents.incident_bot.evaluation import (
     run_recorded,
     write_report,
 )
-from freight_agents.llm import Message, Model, ModelTurn, ScriptedModel, ToolSpec, Usage
 
 
 class Capturing:

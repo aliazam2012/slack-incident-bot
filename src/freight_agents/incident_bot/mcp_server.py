@@ -9,12 +9,13 @@ from typing import Any
 from freight_agents.agentcore.guards import cap_size
 from freight_agents.agentcore.hooks import HookContext
 from freight_agents.agentcore.tools import Risk, Tool, ToolRegistry, strict_schema, tool
-from freight_agents.incident_bot.desk import IncidentDesk
-from freight_agents.incident_bot.domain import TimelineEntry
 from freight_agents.knowledge.index import SearchIn, search_tool
 from freight_agents.llm import ToolSpec
 from freight_agents.mcp.bridge import Route, RouteError, build_server
 from pydantic import BaseModel
+
+from freight_agents.incident_bot.desk import IncidentDesk
+from freight_agents.incident_bot.domain import TimelineEntry
 
 INSTRUCTIONS = (
     "Incidents run in Slack. Read an incident, its timeline and the approvals waiting, and "

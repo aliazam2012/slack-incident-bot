@@ -1,6 +1,7 @@
 import datetime as dt
 
 import pytest
+
 from freight_agents.incident_bot.domain import Incident, Role, Severity
 from freight_agents.incident_bot.policy import POLICY, cadence, runbook_index
 

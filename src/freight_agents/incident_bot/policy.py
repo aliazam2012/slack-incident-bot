@@ -14,8 +14,9 @@ from __future__ import annotations
 import datetime as dt
 from dataclasses import dataclass
 
-from freight_agents.incident_bot.domain import Severity
 from freight_agents.knowledge.index import Bm25Index, package_corpus
+
+from freight_agents.incident_bot.domain import Severity
 
 SEVERITY_URL = "https://docs.pagerduty.com/ops-guides/incident-response-guide/severity-levels"
 EXTERNAL_URL = "https://docs.pagerduty.com/ops-guides/incident-response-guide/external-comms"

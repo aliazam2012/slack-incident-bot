@@ -19,9 +19,10 @@ from freight_agents.agentcore.guards import cap_size, redact_pii
 from freight_agents.agentcore.hooks import HookContext
 from freight_agents.agentcore.taint import TaintSet
 from freight_agents.agentcore.tools import Risk, ToolRegistry, tool
-from freight_agents.incident_bot.domain import Incident
 from freight_agents.llm import Model, ModelTurn, ScriptedModel, TextPart, ToolCall, Usage
 from pydantic import BaseModel
+
+from freight_agents.incident_bot.domain import Incident
 
 Kind = Literal["summary", "customer_update", "postmortem"]
 

@@ -3,10 +3,11 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from freight_agents.llm import ModelTurn, ScriptedModel, ToolCall, Usage
+
 from freight_agents.incident_bot.chat import FakeChat
 from freight_agents.incident_bot.desk import TEMPLATE_HEADINGS
 from freight_agents.incident_bot.drafts import reference_model
-from freight_agents.llm import ModelTurn, ScriptedModel, ToolCall, Usage
 
 from .conftest import World
 
@@ -129,7 +130,7 @@ def test_the_postmortem_follows_the_template_and_blames_no_one(world: World) -> 
 
 
 def test_the_template_headings_match_the_repository_template() -> None:
-    template = Path(__file__).resolve().parents[3] / "docs" / "TPL-postmortem.md"
+    template = Path(__file__).resolve().parents[1] / "docs" / "TPL-postmortem.md"
     headings = [
         line[3:].strip()
         for line in template.read_text().splitlines()

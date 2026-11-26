@@ -11,9 +11,10 @@ import threading
 from pathlib import Path
 from typing import Protocol
 
+from freight_agents.llm import Model
+
 from freight_agents.incident_bot.chat import FakeChat
 from freight_agents.incident_bot.desk import STATUS_CHANNEL, IncidentDesk, Stores
-from freight_agents.llm import Model
 
 DEFAULT_STATE = Path("var/incidents")
 log = logging.getLogger(__name__)
@@ -41,20 +42,19 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("serve", help="run the bot in a Slack workspace (Socket Mode)")
     commands.add_parser("mcp", help="serve the read tools over MCP on stdio")
     evaluate = commands.add_parser("eval", help="play every scenario and grade it")
-    evaluate.add_argument("--reports", type=Path, default=Path("apps/incident-bot/evals/reports"))
+    evaluate.add_argument("--reports", type=Path, default=Path("evals/reports"))
     evaluate.add_argument("--day", default=dt.date.today().isoformat())
     evaluate.add_argument(
         "--mode", choices=["reference", "recorded", "record"], default="reference"
     )
-    evaluate.add_argument(
-        "--cassettes", type=Path, default=Path("apps/incident-bot/evals/cassettes")
-    )
+    evaluate.add_argument("--cassettes", type=Path, default=Path("evals/cassettes"))
     evaluate.add_argument("--model-name", default="claude-opus-5-5")
     evaluate.add_argument("--max-usd", type=float, default=0.0, help="record: the approved cap")
     evaluate.add_argument("--limit", type=int, help="record: only the first N scenarios")
     args = parser.parse_args(argv)
     if args.command == "eval":
         from freight_agents.evals.recording import StaleCassette
+
         from freight_agents.incident_bot.evaluation import (
             FLOORS,
             record,
@@ -150,9 +150,10 @@ def _serve(state: Path) -> int:
             file=sys.stderr,
         )
         return 2
+    from slack_sdk import WebClient
+
     from freight_agents.incident_bot.chat import SlackChat
     from freight_agents.incident_bot.slack_app import build_slack_app, run_socket_mode
-    from slack_sdk import WebClient
 
     client = WebClient(token=bot)
     stores = Stores.at(state)
